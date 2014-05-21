@@ -8,10 +8,17 @@ var server;
 
 var temperature = "??.??";
 var timestamp = new Date().toISOString();
+var updated = timestamp;
 
-stream.on('data', function (obj) {
-  temperature = round(obj.data);
-  timestamp = obj.published_at;
+stream.on('readable', function () {
+  while (null !== (obj = stream.read())) {
+    var newTemperature = round(obj.data);
+    if (temperature !== newTemperature) {
+      temperature = newTemperature;
+      timestamp = obj.published_at;
+    }
+    updated = obj.published_at;
+  }
 });
 
 server = http.createServer();
@@ -31,7 +38,8 @@ function requestHandler(req, res) {
   var body = JSON.stringify({
     temperature: temperature,
     unit: 'fahrenheit',
-    timestamp: timestamp
+    ts: timestamp,
+    last_event_ts: updated
   });
 
   res.writeHead(200, {
