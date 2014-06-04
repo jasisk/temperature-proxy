@@ -1,25 +1,18 @@
+// var stream = require('./test/fixtures/eventsource')();
+var temperature = require('./lib/temperature')();
+var filter = require('./lib/filter')();
 var stream = require('./lib/stream');
+var pipe = require('./lib/pipe');
 var assert = require('assert');
+var db = require('./lib/db')();
 var http = require('http');
 var url = require('url');
 
 var port = process.env.PORT || 8000;
 var server;
 
-var temperature = "??.??";
-var timestamp = new Date().toISOString();
-var updated = timestamp;
-
-stream.on('readable', function () {
-  while (null !== (obj = stream.read())) {
-    var newTemperature = round(obj.data);
-    if (temperature !== newTemperature) {
-      temperature = newTemperature;
-      timestamp = obj.published_at;
-    }
-    updated = obj.published_at;
-  }
-});
+pipe([stream, filter, db, temperature.stream]);
+filter.on('suppressed', temperature.handler.bind(temperature));
 
 server = http.createServer();
 server.on('request', requestHandler);
@@ -31,23 +24,18 @@ function requestHandler(req, res) {
   var sendCode = respondWithCode.bind(this, req, res);
   var parts = url.parse(req.url.toLowerCase(), true);
 
-  if (parts.pathname !== '/') {
+  if (parts.pathname === '/') {
+    var obj = JSON.stringify(temperature.get());
+
+    res.writeHead(200, {
+      'content-type': 'application/json',
+      'content-length': obj.length
+    });
+
+    res.end(obj);
+  } else {
     return sendCode(404);
   }
-
-  var body = JSON.stringify({
-    temperature: temperature,
-    unit: 'fahrenheit',
-    ts: timestamp,
-    last_event_ts: updated
-  });
-
-  res.writeHead(200, {
-    'content-type': 'application/json',
-    'content-length': body.length
-  });
-
-  res.end(body);
 };
 
 function respondWithCode(req, res, code) {
@@ -57,11 +45,4 @@ function respondWithCode(req, res, code) {
     'content-type': 'text/plain'
   });
   res.end(http.STATUS_CODES[code]);
-}
-
-function round(val) {
-  var precision = 2;
-  var power = Math.pow(10, precision);
-  var val = parseFloat(val);
-  return (+(Math.round(val + 'e' + precision) / power).toFixed(precision)).toString();
 }
