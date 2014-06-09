@@ -9,6 +9,8 @@ var http = require('http');
 var url = require('url');
 var db = database();
 
+var read = require('./lib/read')(database.db);
+
 var port = process.env.PORT || 8000;
 var server;
 
@@ -38,6 +40,24 @@ function requestHandler(req, res) {
     });
 
     res.end(obj);
+  } else if (parts.pathname === '/history') {
+    var hours;
+    if (parts.query && (hours = parts.query.hours)) {
+      hours = parseInt(hours, 10);
+      if (isNaN(hours) || hours < 1) {
+        hours = null;
+      }
+    }
+    read(function (err, collection) {
+      var stringified = JSON.stringify(collection, null, 4);
+
+      res.writeHead(200, {
+        'content-type': 'application/json',
+        'content-length': stringified.length
+      });
+
+      res.end(stringified);
+    }, hours);
   } else {
     return sendCode(404);
   }
