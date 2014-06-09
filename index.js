@@ -2,14 +2,19 @@
 var temperature = require('./lib/temperature')();
 var filter = require('./lib/filter')();
 var stream = require('./lib/stream');
+var database = require('./lib/db');
 var pipe = require('./lib/pipe');
 var assert = require('assert');
-var db = require('./lib/db')();
 var http = require('http');
 var url = require('url');
+var db = database();
 
 var port = process.env.PORT || 8000;
 var server;
+
+database.getLatest(function (err, initial) {
+  temperature.set({data: initial.temperature, published_at: initial.ts});
+});
 
 pipe([stream, filter, db, temperature.stream]);
 filter.on('suppressed', temperature.handler.bind(temperature));
