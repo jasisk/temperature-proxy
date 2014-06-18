@@ -30,7 +30,7 @@ database.getLatest(function (err, initial) {
   });
 });
 
-server = hapi.createServer('localhost', port);
+server = hapi.createServer('localhost', port, {cors: true});
 
 server.route([
   { method: 'GET', path: '/',        config: routes.latest(temperature) },
