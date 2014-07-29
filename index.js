@@ -30,9 +30,19 @@ database.getLatest(function (err, initial) {
   });
 });
 
-server = hapi.createServer('localhost', port, {cors: true});
+server = hapi.createServer('localhost', port, {
+  cors: true,
+  views: {
+    engines: {
+      hbs: { module: require('handlebars') }
+    },
+    path: 'templates/'
+  }
+});
 
 server.route([
-  { method: 'GET', path: '/',        config: routes.latest(temperature) },
-  { method: 'GET', path: '/history', config: routes.history(database.db) }
+  { method: 'GET', path: '/',            config: routes.latest(temperature) },
+  { method: 'GET', path: '/graph',       config: routes.graph(database.db) },
+  { method: 'GET', path: '/history',     config: routes.history(database.db) },
+  { method: 'GET', path: '/static/{p*}', config: routes.static() }
 ]);

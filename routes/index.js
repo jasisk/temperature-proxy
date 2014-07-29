@@ -1,4 +1,6 @@
 module.exports = {
   latest: require('./latest'),
-  history: require('./history')
+  history: require('./history'),
+  static: require('./static'),
+  graph: require('./graph')
 };

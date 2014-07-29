@@ -1,0 +1,48 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+svg .path {
+  fill: none;
+  stroke: url(#line-gradient);
+  /*stroke: #333;*/
+  stroke-width: 2px;
+}
+
+svg .axis path,
+svg .grid path {
+  fill: none;
+  stroke: #EEE;
+}
+
+svg .axis {
+  font-size: 10px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  shape-rendering: crispEdges;
+}
+
+svg .axis text {
+  fill: #AAA;
+  stroke: none;
+  shape-rendering: auto;
+}
+
+svg .axis .tick {
+  fill: none;
+  stroke: #EEE;
+}
+
+svg .grid {
+  shape-rendering: crispEdges;
+}
+
+svg .grid .tick {
+  fill: none;
+  stroke: #F5F5F5;
+}
+
+svg .axis .tick.minor text,
+svg .grid .tick.minor {
+  display: none;
+}
