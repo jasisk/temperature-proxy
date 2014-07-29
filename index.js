@@ -1,4 +1,4 @@
-// var stream = require('./test/fixtures/eventsource')() .stream;
+// var stream = require('./test/fixtures/eventsource')();
 var temperature = require('./lib/temperature')();
 var filterGen = require('./lib/filter');
 var stream = require('./lib/stream');
@@ -43,7 +43,6 @@ server = hapi.createServer('localhost', port, {
 server.route([
   { method: 'GET', path: '/',            config: routes.latest(temperature) },
   { method: 'GET', path: '/graph',       config: routes.graph(database.db) },
-  { method: 'GET', path: '/graph.svg',   config: routes.graphSvg(database.db) },
   { method: 'GET', path: '/history',     config: routes.history(database.db) },
   { method: 'GET', path: '/static/{p*}', config: routes.static() }
 ]);
