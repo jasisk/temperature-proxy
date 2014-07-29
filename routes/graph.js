@@ -6,8 +6,7 @@ module.exports = function (db) {
   return {
     handler: function (request, reply) {
       read(function (err, collection) {
-        chart(collection);
-        reply.view('graph', {graph: chart.toString()});
+        reply.view('graph', {graph: chart(collection)});
       });
     }
   };
